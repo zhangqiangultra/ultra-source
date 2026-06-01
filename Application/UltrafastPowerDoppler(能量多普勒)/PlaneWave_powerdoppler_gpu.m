@@ -49,7 +49,7 @@ svd_ord1 = 20;              % SVD滤波起始阶数
 svd_ord2 = 45;              % SVD滤波结束阶数
 
 is_save_BF = 1;             % 是否保存波束合成后IQ数据 1为保存 0为不保存
-Bmode_save_index = 1:9;       % 每一包数据保存的帧号
+Bmode_save_index = 1:(numperfile/numel(steering_deg));       % 每一包数据保存的帧号
                             % 仅在is_save_BF = 1时生效 例：1表示每一包仅保存第1帧，1:numperfile/numel(steering_deg)表示保存第1帧到最后一帧
 is_save_power = 1;          % 是否保存血流数据 1为保存 0为不保存
 
