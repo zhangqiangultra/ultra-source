@@ -48,7 +48,7 @@ z_loc_real = 0.011183;      % 取样线中心点物理坐标z
 
 
 is_save_BF = 1;             % 是否保存波束合成后IQ数据 1为保存 0为不保存
-Bmode_save_index = 1:5;       % 每一包数据保存的帧号
+Bmode_save_index = 1:(numperfile/numel(steering_deg));       % 每一包数据保存的帧号
                             % 仅在is_save_BF = 1时生效 例：1表示每一包仅保存第1帧，1:numperfile表示保存第1帧到最后一帧
 is_save_spectral = 1;       % 是否保存频谱数据 1为保存 0为不保存
 
