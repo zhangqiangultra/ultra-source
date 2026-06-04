@@ -11,7 +11,7 @@
 % -> 将频移换算成流速并显示
 
 % 可保存波束合成后IQ数据和血流速度图
-
+cd(fileparts(mfilename('fullpath')));
 clear all
 clc
 close all

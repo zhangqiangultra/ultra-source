@@ -2,7 +2,7 @@
 % This script aims to take the original segmented saved beamformed IQ data (usually with few or variable frames per file), and according to the specified 
 % frame length (framenum) required by subsequent algorithms (like Doppler calculation, ULM imaging), 
 % re-stitch, crop, and repackage them into a new data file sequence.
-
+cd(fileparts(mfilename('fullpath')));
 clear all
 clc
 close all

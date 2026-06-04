@@ -2,7 +2,7 @@
 % 第一步为采集数据
 % 第二步为波束合成成像DivergingWave_ADC_BF_IQ_Analysis
 % 第三步为矩阵拼接Mat2Mat
-
+cd(fileparts(mfilename('fullpath')));
 clear;clc
 % 将此路径改为第三步保存的数据的路径
 load('E:\20260418154739\bfiq\bfiq_com.mat')

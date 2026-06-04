@@ -7,7 +7,7 @@
 % 带解调的波束合成 -> fft_period帧数据做壁滤波 -> 计算各点频谱再相加 -> （将频移换算成流速并）显示
 
 % 可保存波束合成后IQ数据和频谱图
-
+cd(fileparts(mfilename('fullpath')));
 clear all
 clc
 close all

@@ -1,6 +1,6 @@
 % 函数功能：
 % 读取波束合成后的IQ数据，拼成指定帧数的矩阵
-
+cd(fileparts(mfilename('fullpath')));
 clear all
 clc
 close all

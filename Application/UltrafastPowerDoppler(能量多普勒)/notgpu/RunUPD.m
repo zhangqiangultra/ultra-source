@@ -2,7 +2,7 @@
 % 第一步为采集数据
 % 第二步为波束合成成像PlaneWave_ADC_BF_IQ_Analysis
 % 第三步为矩阵拼接Mat2Mat
-
+cd(fileparts(mfilename('fullpath')));
 clear;clc
 % 将此路径改为第三步保存的数据的路径
 load('D:\software_matlab\exampledata\doppler\20251020190356\bfiq\bfiq_com.mat')

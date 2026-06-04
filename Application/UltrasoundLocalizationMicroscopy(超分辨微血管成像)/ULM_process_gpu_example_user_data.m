@@ -10,6 +10,7 @@
 %% ========================================================================
 % ENVIRONMENT SETUP
 % =========================================================================
+cd(fileparts(mfilename('fullpath')));
 clear; clc; close all;
 
 % Add paths for the PALA_SRUS toolbox and parent directories

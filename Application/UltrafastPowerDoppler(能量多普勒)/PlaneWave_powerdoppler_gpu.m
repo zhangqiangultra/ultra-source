@@ -7,7 +7,7 @@
 % 带解调的波束合成 -> svd滤波 -> 计算能量
 
 % 可保存波束合成后IQ数据和能量图
-
+cd(fileparts(mfilename('fullpath')));
 clear all
 clc
 close all

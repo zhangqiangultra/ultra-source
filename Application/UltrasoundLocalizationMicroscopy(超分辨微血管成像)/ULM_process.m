@@ -1,4 +1,5 @@
 % Directly invoke PALA toolbox
+cd(fileparts(mfilename('fullpath')));
 clear;clc;close all;
 addpath(genpath('.\PALA_SRUS'));
 currentPath = pwd;
