@@ -20,22 +20,31 @@ currentPath = pwd;
 parentDir = fileparts(fileparts(currentPath));
 addpath(genpath(parentDir));
 
-%% 必要参数
-filefolder = 'D:\software_matlab\exampledata\doppler\20251020190356';  % 数据所在文件夹
+% 数据路径
+data_filepath = 'E:\2026-07-17-132826';  % 数据所在文件夹
 
-% 
-[fs,prf,sampleNum,scanLine,imagedepth,focus_depth,cstartoffset,frame_nums,numperfile,steering_deg,scaninfo] = read_adc_para(strcat(filefolder,'\Param.txt'),'plane wave');
-fc=7.5e6; %发射频率
+%% 读取参数
+load(fullfile(data_filepath,"Param.mat"))
+
+channel = AcqConfig.Tx.channel;
+sos = AcqConfig.Tx.sos;
+probe_name = AcqConfig.Probe.name;
+fs = AcqConfig.Rx.fs;
+prf = AcqConfig.Tx.prf;
+sampleNum = AcqConfig.Rx.Revpt;
+imagedepth = AcqConfig.Rx.ImageDepth;
+cstartoffset = [];
+for i = 1:size(AcqConfig.Tx.sequence,2)
+    cstartoffset(i) = AcqConfig.Rx.sequence{1, i}.cstartoffset;
+end
+frame_nums = AcqConfig.Rx.frameN;
+fc = AcqConfig.Tx.Pulse.pulse_frequency;
+NumsPerFile = AcqConfig.Rx.NumsPerFile;
+steer_deg = AcqConfig.Tx.steer;
+
 BF_SampleN = sampleNum;
 
-                            % fs               采样率
-                            % sampleNum       采样点数
-                            % numperfile       保存的数据每一包所含帧数
-                            % steering_deg     平面波发射角度
-                            % ImageDepth       图像深度
-                            % prf              采集数据所用的脉冲重复频率 
-
-
+%%
 load_file_num = 10;         % 读取并处理的文件数量
 
 Imagestart = 0.002;         % B模式图像起始深度
@@ -54,23 +63,15 @@ svd_ord1 = 20;              % SVD滤波起始阶数
 svd_ord2 = 45;              % SVD滤波结束阶数
 
 is_save_BF = 1;             % 是否保存波束合成后IQ数据 1为保存 0为不保存
-Bmode_save_index = 1:(numperfile/numel(steering_deg));       % 每一包数据保存的帧号
-                            % 仅在is_save_BF = 1时生效 例：1表示每一包仅保存第1帧，1:(numperfile/numel(steering_deg))表示保存第1帧到最后一帧
+Bmode_save_index = 1:(NumsPerFile/numel(steer_deg));       % 每一包数据保存的帧号
+                            % 仅在is_save_BF = 1时生效 例：1表示每一包仅保存第1帧，1:(NumsPerFile/numel(steer_deg))表示保存第1帧到最后一帧
 is_save_color = 1;          % 是否保存血流数据 1为保存 0为不保存
-
-
-% 默认参数
-probe_name = 'L5-10';       % 探头名称
-TxChannel = 128;            % 发射通道数量
-RxChannel = 128;            % 接收通道数量
-sos = 1540;                 % 声速
-
 
 
 %% 波束合成参数计算
 
 probe = Probe_para(probe_name);
-ch_map = probe.rx_ele_map(1:RxChannel);
+ch_map = probe.rx_ele_map(1:channel);
 elex = probe.element_pos.x;
 elez = probe.element_pos.z;
 
@@ -86,7 +87,7 @@ allbeamz = reshape(scan.zz,[BF_SampleN*BeamN,1]);
 
 probe_type_ptr = libpointer('cstring', "linear");
 
-single_Steering = single(steering_deg);
+single_Steering = single(steer_deg);
 single_Steering_ptr = libpointer('singlePtr', single_Steering);
 single_Steering_len = length(single_Steering);
 
@@ -123,9 +124,9 @@ rx_apod = f_mask;
 xm = bsxfun(@minus, probe.element_pos.x,allbeamx);
 zm = bsxfun(@minus,probe.element_pos.z,allbeamz);
 rx_delay = sqrt(xm.^2+zm.^2)/sos*fs;
-SteeringNum = numel(steering_deg);
+SteeringNum = numel(steer_deg);
 tx_delay = zeros(BF_SampleN*BeamN,SteeringNum);
-steer = deg2rad(steering_deg);
+steer = deg2rad(steer_deg);
 for i = 1:SteeringNum
     if steer(i) >= 0
         tx_delay(:,i) = ((allbeamx - min(probe.element_pos.x))*sin(steer(i)) + allbeamz*cos(steer(i)))/sos*fs;
@@ -166,7 +167,7 @@ single_filter_ptr = libpointer('singlePtr', single_filter);
 single_filter_len = length(single_filter);
 
 % 
-buffer_num = floor(fft_period/(numperfile/SteeringNum))+2; %缓冲区个数
+buffer_num = floor(fft_period/(NumsPerFile/SteeringNum))+2; %缓冲区个数
 t_idx = fft_period; % 这个idx是当前在图的idx 初始为fft_period 
 t_buffer_idx = fft_period; % 这个idx是在缓冲区的idx 初始为fft_period 
 
@@ -214,7 +215,7 @@ end
 bprocesspara.Demod_AFE_Dynamic = -7;
 gpu_handle = calllib('US_APP', 'initializecolorGPU', ...
     prf, ...
-    numperfile, ...
+    NumsPerFile, ...
     buffer_num, ...
     fft_period, ...
     1, ... % lag
@@ -224,11 +225,12 @@ gpu_handle = calllib('US_APP', 'initializecolorGPU', ...
     probe_type_ptr, ...
     bprocesspara.Demod_AFE_Dynamic, ...
     1, ... %AcqConfig.Tx.FsNum
-    TxChannel, ... %AcqConfig.Tx.Channel
-    RxChannel, ... %RxChannel
+    channel, ... %AcqConfig.Tx.Channel
+    channel, ... %channel
     probe.element_num, ... %AcqConfig.Probe.element_num
     probe.element_pitch, ... %AcqConfig.Probe.element_pitch
     128, ...
+    sampleNum,...
     BF_SampleN, ...
     BeamN, ...
     sos, ...
@@ -252,7 +254,7 @@ gpu_handle = calllib('US_APP', 'initializecolorGPU', ...
 
 
 %% 获取所有有效数据文件
-files =dir (fullfile (filefolder ,'**' ,'*bin' ));
+files =dir (fullfile (data_filepath ,'**' ,'*bin' ));
 num_files =length (files);
 file_numbers =zeros (num_files, 1);
 
@@ -275,7 +277,7 @@ sorted_files =valid_files (sort_indices);
 %% 定义图像
 
 % 要显示的B模式图像（波束合成图）
-bfdata = zeros(1, 2* BF_SampleN * BeamN * numperfile / SteeringNum);
+bfdata = zeros(1, 2* BF_SampleN * BeamN * NumsPerFile / SteeringNum);
 bfdata = single(bfdata);
 bfdata_ptr = libpointer('singlePtr', bfdata);
 
@@ -328,13 +330,13 @@ flowmask_matrix_ptr = libpointer('singlePtr', flowmask_matrix);
 
 % 如果要保存则创建文件夹
 if is_save_BF
-    if ~exist(fullfile(filefolder, 'bfdata'), 'dir')
-        mkdir(fullfile(filefolder, 'bfdata'));
+    if ~exist(fullfile(data_filepath, 'bfdata'), 'dir')
+        mkdir(fullfile(data_filepath, 'bfdata'));
     end
 end
 if is_save_color
-    if ~exist(fullfile(filefolder, 'color'), 'dir')
-        mkdir(fullfile(filefolder, 'color'));
+    if ~exist(fullfile(data_filepath, 'color'), 'dir')
+        mkdir(fullfile(data_filepath, 'color'));
     end
 end
 
@@ -351,8 +353,8 @@ for file_i = 1:load_file_num
     alldata = fread(fileID, nFileLen,'int8=>int8');
     
     sid = 0;
-    alldata_len = SteeringNum*(2*BF_SampleN*TxChannel+128);
-    cur_data = alldata(1:(numperfile/SteeringNum)*alldata_len);
+    alldata_len = SteeringNum*(2*BF_SampleN*channel+128);
+    cur_data = alldata(1:(NumsPerFile/SteeringNum)*alldata_len);
     
     alldata_ptr = libpointer('int8Ptr', cur_data);
     bag_idx = file_i-1;  %这个bag_idx要从0开始
@@ -372,7 +374,7 @@ for file_i = 1:load_file_num
     
     if is_save_BF
         bfdata_save = bfdata_iq(:,:,Bmode_save_index);
-        save(fullfile(filefolder,'bfdata',num2str(bag_idx)+".mat"), 'bfdata_save',"x_axis","z_axis");
+        save(fullfile(data_filepath,'bfdata',num2str(bag_idx)+".mat"), 'bfdata_save',"x_axis","z_axis");
     end
 
     % 获取血流速度 套回原图位置 
@@ -406,7 +408,7 @@ for file_i = 1:load_file_num
     pause(0.001)
 
     if is_save_color
-        save(fullfile(filefolder,'color',num2str(bag_idx)+".mat"), 'color_matrix_update');
+        save(fullfile(data_filepath,'color',num2str(bag_idx)+".mat"), 'color_matrix_update');
     end
 
     fclose(fileID);
