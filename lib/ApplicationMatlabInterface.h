@@ -63,6 +63,66 @@ extern "C" {
 		float* angle_weight_table, int angle_weight_size
 	);
 
+	__declspec(dllexport) BeamformingGPUHandle initializeBfiqRCAGPU_opw(
+		int numperfile,
+		int rx_num,
+		int Channel,
+		int RxChannel,
+		int element_num,
+		float element_pitch,
+		float element_radius,
+		int adc_headsize,
+		int sample_n,
+		int bf_sample_num,
+		int BeamN,
+		float sos,
+		float fs,
+		float fc,//发射频率
+		float* plae_wave_steer, int plae_wave_steer_size,
+		float* beamx, int beamx_size,
+		float* beamz, int beamz_size,
+		float* cstartoffset, int cstartoffset_size,
+		float* channel_map, int channel_map_size,
+		float* element_pos_xz, int element_pos_xz_size,
+		float* filter_coef, int filter_size,
+		float* rx_apod, int rx_apod_size,
+		float* rx_delay, int rx_delay_size,
+		float* tx_delay, int tx_delay_size,
+		float* angle_weight_table, int angle_weight_size
+	);
+
+	__declspec(dllexport) BeamformingGPUHandle initializeBfiqRCAGPU(
+		int numperfile,
+		int rx_num,
+		int Channel,
+		int RxChannel,
+		int element_num,
+		float element_pitch,
+		float element_radius,
+		int adc_headsize,
+		int sample_n,
+		int bf_sample_num,
+		int BeamN,
+		float sos,
+		float fs,
+		float fc,//发射频率
+		float* plae_wave_steer, int plae_wave_steer_size,
+		float* beamx, int beamx_size,
+		float* beamz, int beamz_size,
+		float* cstartoffset, int cstartoffset_size,
+		float* channel_map, int channel_map_size,
+		float* element_pos_xz, int element_pos_xz_size,
+		float* filter_coef, int filter_size,
+		float* rx_apod, int rx_apod_size,
+		float* rx_delay_xz_1, int rx_delay_xz_1_size,
+		float* rx_delay_xz_0, int rx_delay_xz_0_size,
+		float* tx_delay_xz, int tx_delay_xz_size,
+		float* rx_delay_yz_1, int rx_delay_yz_1_size,
+		float* rx_delay_yz_0, int rx_delay_yz_0_size,
+		float* tx_delay_yz, int tx_delay_yz_size,
+		float* angle_weight_table, int angle_weight_size
+	);
+
 	__declspec(dllexport) BeamformingGPUHandle initializespectralGPU(
 		int prf,		int numperfile,
 		int buffer_num,		int fft_period,		int lag,		
@@ -73,6 +133,7 @@ extern "C" {
 		int Channel,		int RxChannel,
 		int element_num,		float element_pitch,
 		int adc_head,
+		int SampleN,
 		int bf_sample_num,
 		int BeamN,
 		float sos,
@@ -101,6 +162,7 @@ extern "C" {
 		int Channel, int RxChannel,
 		int element_num, float element_pitch,
 		int adc_head,
+		int SampleN,
 		int bf_sample_num,
 		int BeamN,
 		float sos,
@@ -132,6 +194,7 @@ extern "C" {
 		int Channel, int RxChannel,
 		int element_num, float element_pitch,
 		int adc_head,
+		int SampleN,
 		int bf_sample_num,
 		int BeamN,
 		float sos,
@@ -152,6 +215,22 @@ extern "C" {
 		float* tx_delay, int tx_delay_size,
 		float* x_loc_all, float* z_loc_all, int loc_num,
 		int region_width, int region_height
+	);
+
+	__declspec(dllexport) BeamformingGPUHandle initializepaGPU(
+		int Demod_AFE_Dynamic,
+		int Channel, int RxChannel,
+		int element_num, float element_pitch,
+		int adc_head,
+		int sample_num,
+		int bf_sample_num,
+		int BeamN,
+		float sos,
+		float fs,
+		float cstartoffset,
+		float* channel_map, int channel_map_size,
+		float* rx_apod, int rx_apod_size,
+		float* rx_delay, int rx_delay_size
 	);
 
 	 
@@ -190,6 +269,14 @@ extern "C" {
 	__declspec(dllexport) int processDataBeamformingGPU(BeamformingGPUHandle handle, int8_t* input, int size, float* output);
 
 	__declspec(dllexport) int processDataBeamformingIQGPU(BeamformingGPUHandle handle, int8_t* input, int size, float* output);
+
+	__declspec(dllexport) int processDataBeamformingPAGPU(BeamformingGPUHandle handle, int8_t* input, int size, float* output);
+
+	__declspec(dllexport) int processDataBeamformingIQRCAGPU(BeamformingGPUHandle handle, int8_t* input, int size, float* output);
+
+	__declspec(dllexport) int processDataBeamformingIQRCAGPU_opw(BeamformingGPUHandle handle, int8_t* input, int size, float* output_1, float* output_2);
+
+	__declspec(dllexport) int processDataBeamformingIQGPU_channel(BeamformingGPUHandle handle, int8_t* input, int size, int* channel_map, float* output);
 
 	__declspec(dllexport) int processSpectralDataBeamformingandPostGPU(BeamformingGPUHandle handle, int8_t* input, 
 		int size, float* output_b, float* output_sd, int bag_idx);
