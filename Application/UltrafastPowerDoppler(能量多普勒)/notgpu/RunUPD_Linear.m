@@ -1,11 +1,11 @@
 % 此脚本为超快能量多普勒第四步
 % 第一步为采集数据
-% 第二步为波束合成成像DivergingWave_ADC_BF_IQ_Analysis
+% 第二步为波束合成成像PlaneWave_ADC_BF_IQ_Analysis
 % 第三步为矩阵拼接Mat2Mat
 cd(fileparts(mfilename('fullpath')));
 clear;clc
 % 将此路径改为第三步保存的数据的路径
-load('E:\20260418154739\bfiq\bfiq_com.mat')
+load('D:\software_matlab\exampledata\doppler\20251020190356\bfiq\bfiq_com.mat')
 
 [Nz,Nx,Nt] = size(bfiq_com);
 % 参数设置：ord1和ord2
@@ -15,14 +15,11 @@ load('E:\20260418154739\bfiq\bfiq_com.mat')
 % check beamforming data
 % figure(1); 
 % for i = 1:size(bfiq_com,3)
-%     pcolor(xx_grid*100,zz_grid*100,log_compressed(abs(bfiq_com(:,:,i))));
-%     colormap(gray);clim([-60, 0]);xlabel("cm");ylabel("cm")
-%     axis equal;axis tight
-%     set(gca, 'YDir', 'reverse');
-%     ylim([0,max(zz_grid(:))*100])
-%     shading interp;
+%     img_envelope = abs(bfiq_com(:,:,i));
+%     img_log = log_compressed(img_envelope);
+%     imagesc(x_axis,z_axis,img_log,[-60 0]);
+%     colormap(gray);axis equal;axis tight
 %     title("frame"+i)
-%     colorbar
 %     pause(0.01);
 % end
 
@@ -47,15 +44,7 @@ filtered_mat = U*S_filt*V';
 %% power doppler
 power_doppler = mean(abs(filtered_mat).^2,2);
 power_doppler = reshape(power_doppler,[Nz Nx]);
-figure(2);
-pcolor(xx_grid*100,zz_grid*100,log_compressed(power_doppler));
-clim([-60, 0]);xlabel("cm");ylabel("cm")
+figure(2);imagesc(x_axis,z_axis,log_compressed(power_doppler),[-25 0]);
 colormap('hot');axis equal;axis tight;colorbar
-set(gca, 'YDir', 'reverse');
-ylim([0,max(zz_grid(:))*100])
-shading interp;
-
-
-
 
 

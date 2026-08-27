@@ -5,7 +5,7 @@
 cd(fileparts(mfilename('fullpath')));
 clear;clc
 % 将此路径改为第三步保存的数据的路径
-load('E:\20260418154739\bfiq\bfiq_com.mat')
+load('E:\2026_08_26_204408\bfiq\bfiq_com.mat')
 
 [Nz,Nx,Nt] = size(bfiq_com);
 % 参数设置：ord1和ord2
@@ -19,7 +19,6 @@ load('E:\20260418154739\bfiq\bfiq_com.mat')
 %     colormap(gray);clim([-60, 0]);xlabel("cm");ylabel("cm")
 %     axis equal;axis tight
 %     set(gca, 'YDir', 'reverse');
-%     ylim([0,max(zz_grid(:))*100])
 %     shading interp;
 %     title("frame"+i)
 %     colorbar
@@ -35,14 +34,13 @@ casorati_mat = IQ_mat;
 clear casorati;
 
 % svd阶数
-ord1 = 55;
+ord1 = 180;
 ord2 = size(IQ_mat,2)-20;
 S_filt = zeros(size(S));
 for i = ord1:ord2
     S_filt(i,i) = S(i,i);
 end
 filtered_mat = U*S_filt*V';
-
 
 %% power doppler
 power_doppler = mean(abs(filtered_mat).^2,2);
@@ -52,7 +50,6 @@ pcolor(xx_grid*100,zz_grid*100,log_compressed(power_doppler));
 clim([-60, 0]);xlabel("cm");ylabel("cm")
 colormap('hot');axis equal;axis tight;colorbar
 set(gca, 'YDir', 'reverse');
-ylim([0,max(zz_grid(:))*100])
 shading interp;
 
 
